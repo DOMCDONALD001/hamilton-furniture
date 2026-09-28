@@ -1,0 +1,855 @@
+%PDF-1.3
+%ºß¬à
+3 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 612. 792.]
+/Contents 4 0 R
+>>
+endobj
+4 0 obj
+<<
+/Length 5039
+>>
+stream
+0.200025 w
+0 G
+0.1 0.14 0.12 rg
+0. 792. 612. -160. re
+f
+BT
+/F2 22 Tf
+25.2999999999999972 TL
+0.969 0.949 0.918 rg
+54. 722. Td
+(Hamilton Odds N Ends Furniture) Tj
+ET
+BT
+/F1 13 Tf
+14.9499999999999993 TL
+0.969 0.949 0.918 rg
+54. 694. Td
+(How the store works) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.769 0.647 0.455 rg
+54. 668. Td
+(Updated July 28, 2026) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 602. Td
+(This guide explains how the furniture store website and admin tools work in everyday language. It is meant) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 588. Td
+(for owners and staff — not for developers.) Tj
+ET
+BT
+/F2 14 Tf
+16.0999999999999979 TL
+0.102 0.137 0.118 rg
+54. 554. Td
+(The big picture) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 530. Td
+(There are three parts that all share the same store information. The public website is where customers shop,) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 516. Td
+(check out, and track orders. The admin area is where you manage products, orders, drivers, and settings.) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 502. Td
+(The driver portal is a separate login drivers use only for their delivery routes.) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 480. Td
+(When a customer pays online, the item comes out of stock, an order is created, the customer gets a) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 466. Td
+(confirmation email, and you get a store alert. If they chose delivery, you later put that order on a driver route.) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 452. Td
+(When the driver marks it delivered, the customer gets another email. If you refund or cancel an order that is) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 438. Td
+(still on a route, it is taken off the driver’s list automatically so they do not deliver it.) Tj
+ET
+BT
+/F2 14 Tf
+16.0999999999999979 TL
+0.102 0.137 0.118 rg
+54. 404. Td
+(What customers do on the website) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 380. Td
+(Customers browse the shop, open product pages with photos and prices, and add items to a cart. They can) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 366. Td
+(search by name, brand, SKU, or search tags you add \(for example tagging a sectional with “couch” and) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 352. Td
+(“sofa” so it shows up when people search those words\).) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 330. Td
+(At checkout they enter their contact info and choose pickup or delivery. For delivery they pick a weekday on) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 316. Td
+(a calendar and a time window. The delivery fee depends on their ZIP code. They pay by card. After payment) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 302. Td
+(they can track the order with their order number and email. If something goes wrong with a delivery, they can) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 288. Td
+(open a claim on the site, and you handle it under Claims in admin.) Tj
+ET
+BT
+/F2 14 Tf
+16.0999999999999979 TL
+0.102 0.137 0.118 rg
+54. 254. Td
+(Inventory) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 230. Td
+(In admin under Inventory you add products, set prices, mark items on sale, add search tags, and upload) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 216. Td
+(photos. You can discount or tag several products at once. Product statuses control whether something is for) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 202. Td
+(sale, a draft, out of stock, or archived.) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 180. Td
+(The SKU report is your stock tracker. It shows how many of each item you have, which are low or out, value) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 166. Td
+(on hand, what has sold, and which products are missing photos. You can filter the list and download a PDF) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 152. Td
+(or spreadsheet for counts and bookkeeping. Running this once a week is a good habit.) Tj
+ET
+BT
+/F2 14 Tf
+16.0999999999999979 TL
+0.102 0.137 0.118 rg
+54. 118. Td
+(Orders, refunds, and packing) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 94. Td
+(The Orders page lists every sale. Open an order to see items, address, payment, and notes. When you) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 80. Td
+(change the order status \(for example processing, out for delivery, or delivered\), the customer is emailed. You) Tj
+ET
+BT
+/F1 8 Tf
+9.1999999999999993 TL
+0.51 g
+54. 28. Td
+(Hamilton Odds N Ends Furniture — Operations Guide — Page 1 of 3) Tj
+ET
+endstream
+endobj
+5 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 612. 792.]
+/Contents 6 0 R
+>>
+endobj
+6 0 obj
+<<
+/Length 5373
+>>
+stream
+0.200025 w
+0 G
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 738. Td
+(can also email the customer a confirmation again without changing anything.) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 716. Td
+(You can issue a full or partial refund through Square from the order screen. On a full refund you can put stock) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 702. Td
+(back. If you fully refund or mark an order cancelled or refunded, that order is removed from any active driver) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 688. Td
+(route so the driver cannot deliver it by mistake. Packing slips can be printed for one order or several at once.) Tj
+ET
+BT
+/F2 14 Tf
+16.0999999999999979 TL
+0.102 0.137 0.118 rg
+54. 654. Td
+(Deliveries and drivers) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 630. Td
+(Under Delivery settings you set ZIP fees, free-delivery rules, and which days and time windows customers) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 616. Td
+(can choose. Under Drivers you create driver logins. Give drivers only the driver website link — not the admin) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 602. Td
+(login. Drivers cannot change prices, inventory, or payments.) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 580. Td
+(On Assign drivers you build a route for a date, add delivery orders, and assign a driver. The driver opens) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 566. Td
+(their portal, works each stop, and marks en route, delivered, or reports a problem. Delivered stops save a) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 552. Td
+(location pin you can open in Maps.) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 530. Td
+(Live drivers shows who is out on the road, how far along their route they are, and a map of their last shared) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 516. Td
+(location. Drivers need to keep the driver page open and allow location on their phone. If someone reports a) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 502. Td
+(delivery problem, it shows under Reports so you can resolve it and rebook if needed.) Tj
+ET
+BT
+/F2 14 Tf
+16.0999999999999979 TL
+0.102 0.137 0.118 rg
+54. 468. Td
+(Auctions) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 444. Td
+(Auctions run alongside regular buy-now products. Bidding needs a customer account. When an auction) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 430. Td
+(ends, the winner gets an email with a pay link and can choose free pickup or paid delivery. After they pay,) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 416. Td
+(treat the order like any other sale. You can resend the pay email from the auction page if they need it again.) Tj
+ET
+BT
+/F2 14 Tf
+16.0999999999999979 TL
+0.102 0.137 0.118 rg
+54. 382. Td
+(Payments and email) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 358. Td
+(Online payments run through Square. Customers enter their card at checkout or when paying for an auction) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 344. Td
+(win. Refunds you start in admin go back through Square when the order was paid by card.) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 322. Td
+(Customer emails come from orders@hamiltonsoddsandends.com. Customers get order confirmations and) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 308. Td
+(status updates. You get a separate alert when a new paid order comes in or when an order changes, so you) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 294. Td
+(are not relying only on the customer copy. You can set your notify email and the from name under Settings.) Tj
+ET
+BT
+/F2 14 Tf
+16.0999999999999979 TL
+0.102 0.137 0.118 rg
+54. 260. Td
+(Other admin tools) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 236. Td
+(In-store sale can stay hidden until you turn it on in Settings. Offers lets you create promo codes. Revenue) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 222. Td
+(shows sales for a date range and can download a statement. Claims is where customer issue tickets live.) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 208. Td
+(Settings also covers homepage text and photos, contact info, tax rate, and your password.) Tj
+ET
+BT
+/F2 14 Tf
+16.0999999999999979 TL
+0.102 0.137 0.118 rg
+54. 174. Td
+(A simple daily routine) Tj
+ET
+BT
+/F2 11 Tf
+12.6499999999999986 TL
+0.157 0.216 0.188 rg
+54. 144. Td
+(Morning) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 126. Td
+(Check the dashboard and Orders for anything that came in overnight. Set up today’s delivery routes and) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 112. Td
+(check Live drivers. Clear any open delivery issues in Reports.) Tj
+ET
+BT
+/F2 11 Tf
+12.6499999999999986 TL
+0.157 0.216 0.188 rg
+54. 84. Td
+(During the day) Tj
+ET
+BT
+/F1 8 Tf
+9.1999999999999993 TL
+0.51 g
+54. 28. Td
+(Hamilton Odds N Ends Furniture — Operations Guide — Page 2 of 3) Tj
+ET
+endstream
+endobj
+7 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 612. 792.]
+/Contents 8 0 R
+>>
+endobj
+8 0 obj
+<<
+/Length 2598
+>>
+stream
+0.200025 w
+0 G
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 738. Td
+(Add new inventory with photos and search tags. Put new delivery orders onto routes as they come in. Keep) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 724. Td
+(an eye on Live drivers. If you refund or cancel, remember the stop comes off the route automatically.) Tj
+ET
+BT
+/F2 11 Tf
+12.6499999999999986 TL
+0.157 0.216 0.188 rg
+54. 696. Td
+(Weekly) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 678. Td
+(Run the SKU report and fix low stock or missing photos. Glance at Revenue for paid versus refunded. Make) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 664. Td
+(sure order emails and payments still look normal.) Tj
+ET
+BT
+/F2 14 Tf
+16.0999999999999979 TL
+0.102 0.137 0.118 rg
+54. 630. Td
+(If something goes wrong) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 606. Td
+(If a customer did not get email, use Email customer on their order and confirm your from address is set to) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 592. Td
+(orders@hamiltonsoddsandends.com in Settings. If a driver is missing from the live map, have them allow) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 578. Td
+(location and keep the driver page open. If an order was refunded but still shows on a route, refresh the route) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 564. Td
+(— it should show as removed. If stock did not come back after a refund, use restore inventory on the full) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 550. Td
+(refund. If search cannot find a couch or sofa, add those words as search tags on the product.) Tj
+ET
+BT
+/F2 14 Tf
+16.0999999999999979 TL
+0.102 0.137 0.118 rg
+54. 516. Td
+(Access) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 492. Td
+(Keep the owner admin login separate from driver logins. Do not share the admin password with drivers. Log) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 478. Td
+(out on shared computers. Drivers can only update delivery progress — they cannot change prices or take) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 464. Td
+(refunds.) Tj
+ET
+BT
+/F1 10.5 Tf
+12.0749999999999993 TL
+0.125 0.141 0.133 rg
+54. 442. Td
+(Website: https://hamilton-furniture.hamiltonsbikes.workers.dev) Tj
+ET
+BT
+/F1 8 Tf
+9.1999999999999993 TL
+0.51 g
+54. 28. Td
+(Hamilton Odds N Ends Furniture — Operations Guide — Page 3 of 3) Tj
+ET
+endstream
+endobj
+1 0 obj
+<</Type /Pages
+/Kids [3 0 R 5 0 R 7 0 R ]
+/Count 3
+>>
+endobj
+9 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+10 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+11 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+12 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+13 0 obj
+<<
+/Type /Font
+/BaseFont /Courier
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+14 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+15 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+16 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+17 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Roman
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+18 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+19 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Italic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+20 0 obj
+<<
+/Type /Font
+/BaseFont /Times-BoldItalic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+21 0 obj
+<<
+/Type /Font
+/BaseFont /ZapfDingbats
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+22 0 obj
+<<
+/Type /Font
+/BaseFont /Symbol
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+2 0 obj
+<<
+/ProcSet [/PDF /Text /ImageB /ImageC /ImageI]
+/Font <<
+/F1 9 0 R
+/F2 10 0 R
+/F3 11 0 R
+/F4 12 0 R
+/F5 13 0 R
+/F6 14 0 R
+/F7 15 0 R
+/F8 16 0 R
+/F9 17 0 R
+/F10 18 0 R
+/F11 19 0 R
+/F12 20 0 R
+/F13 21 0 R
+/F14 22 0 R
+>>
+/XObject <<
+>>
+>>
+endobj
+23 0 obj
+<<
+/Producer (jsPDF 4.2.1)
+/CreationDate (D:20260728223457-05'00')
+>>
+endobj
+24 0 obj
+<<
+/Type /Catalog
+/Pages 1 0 R
+/OpenAction [3 0 R /FitH null]
+/PageLayout /OneColumn
+>>
+endobj
+xref
+0 25
+0000000000 65535 f 
+0000013496 00000 n 
+0000015329 00000 n 
+0000000015 00000 n 
+0000000120 00000 n 
+0000005211 00000 n 
+0000005316 00000 n 
+0000010741 00000 n 
+0000010846 00000 n 
+0000013565 00000 n 
+0000013690 00000 n 
+0000013821 00000 n 
+0000013955 00000 n 
+0000014093 00000 n 
+0000014217 00000 n 
+0000014346 00000 n 
+0000014478 00000 n 
+0000014614 00000 n 
+0000014742 00000 n 
+0000014869 00000 n 
+0000014998 00000 n 
+0000015131 00000 n 
+0000015233 00000 n 
+0000015581 00000 n 
+0000015667 00000 n 
+trailer
+<<
+/Size 25
+/Root 24 0 R
+/Info 23 0 R
+/ID [ <AD48ACEE3FD0B61F41F99CDC26C789F0> <AD48ACEE3FD0B61F41F99CDC26C789F0> ]
+>>
+startxref
+15771
+%%EOF

@@ -4,10 +4,12 @@
   "compatibility_date": "2026-07-17",
   "compatibility_flags": ["nodejs_compat"],
   "main": "./worker/index.ts",
+  "workers_dev": true,
+  "preview_urls": true,
   "assets": {
     "not_found_handling": "single-page-application",
     "binding": "ASSETS",
-    "run_worker_first": ["/api/*"]
+    "run_worker_first": true
   },
   "observability": {
     "enabled": true,
@@ -17,7 +19,7 @@
     {
       "binding": "DB",
       "database_name": "hamilton-furniture-db",
-      "database_id": "local-dev-placeholder",
+      "database_id": "db1649c3-a090-4035-984f-ecb1cec4ea43",
       "migrations_dir": "migrations"
     }
   ],
@@ -28,6 +30,20 @@
     }
   ],
   "vars": {
-    "STORE_NAME": "Hamilton Odds N Ends Furniture"
-  }
+    "STORE_NAME": "Hamilton's Odds N Ends Furniture",
+    "PUBLIC_SITE_URL": "https://hamiltonsoddsandends.com",
+    "SQUARE_ENVIRONMENT": "sandbox",
+    "SQUARE_APPLICATION_ID": "sandbox-sq0idb-gYR4l6Xn2glvJzYHY4PiTQ",
+    "SQUARE_LOCATION_ID": "LW1KFRCAM2WQZ"
+  },
+  "routes": [
+    {
+      "pattern": "hamiltonsoddsandends.com",
+      "custom_domain": true
+    },
+    {
+      "pattern": "www.hamiltonsoddsandends.com",
+      "custom_domain": true
+    }
+  ]
 }

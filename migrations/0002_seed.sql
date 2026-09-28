@@ -14,7 +14,9 @@ INSERT OR IGNORE INTO delivery_zones (id, name, zip_prefixes, base_cents, per_it
 INSERT OR IGNORE INTO store_settings (key, value) VALUES
   ('tax_rate_bps', '725'),
   ('store_phone', '(513) 555-0199'),
-  ('store_email', 'hello@hamiltonoddsnends.com'),
+  ('store_email', 'hello@hamiltonsoddsandends.com'),
+  ('site_url', 'https://hamiltonsoddsandends.com'),
+  ('email_from', 'orders@hamiltonsoddsandends.com'),
   ('store_address', '1420 High Street, Hamilton, OH 45011'),
   ('currency', 'USD'),
   ('low_stock_alert', '2');

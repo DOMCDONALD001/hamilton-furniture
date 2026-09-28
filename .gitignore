@@ -14,6 +14,7 @@ dist-ssr
 .wrangler
 .dev.vars
 worker-configuration.d.ts
+backups
 
 # Editor directories and files
 .vscode/*
@@ -25,3 +26,14 @@ worker-configuration.d.ts
 *.njsproj
 *.sln
 *.sw?
+node_modules/
+.env
+.env.*
+dist/
+.next/
+.wrangler/
+.open-next/
+dev.db
+*.sqlite
+.vercel/
+src/generated/

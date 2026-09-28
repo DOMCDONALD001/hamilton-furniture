@@ -106,6 +106,31 @@ export async function getSetting(db: D1Database, key: string, fallback = "") {
   return row?.value ?? fallback;
 }
 
+/** Official customer-facing origin for emails, hang-tag QR codes, and pay links. */
+export const DEFAULT_PUBLIC_SITE_URL = "https://hamiltonsoddsandends.com";
+
+export async function getPublicOrigin(
+  env: { DB: D1Database; PUBLIC_SITE_URL?: string },
+  requestUrl?: string,
+) {
+  const fromSettings = (await getSetting(env.DB, "site_url", "")).trim().replace(/\/$/, "");
+  if (fromSettings) return fromSettings;
+  const fromEnv = (env.PUBLIC_SITE_URL || "").trim().replace(/\/$/, "");
+  if (fromEnv) return fromEnv;
+  if (requestUrl) {
+    try {
+      const host = new URL(requestUrl).hostname;
+      // Prefer the official domain when admin/API traffic is still on workers.dev or localhost.
+      if (host && !host.includes("workers.dev") && host !== "localhost" && host !== "127.0.0.1") {
+        return new URL(requestUrl).origin;
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+  return DEFAULT_PUBLIC_SITE_URL;
+}
+
 export async function setSetting(db: D1Database, key: string, value: string) {
   await db
     .prepare(

@@ -19,12 +19,14 @@ export function ProductPage() {
   const [related, setRelated] = useState<Product[]>([]);
   const [qty, setQty] = useState(1);
   const [selectedColor, setSelectedColor] = useState<string>("");
+  const [activeImage, setActiveImage] = useState(0);
   const [toast, setToast] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (!slug) return;
     setError("");
+    setActiveImage(0);
     api<{ product: Product; category: Category | null; related: Product[] }>(
       `/api/products/${slug}`,
     )
@@ -45,8 +47,11 @@ export function ProductPage() {
   const colors = productColors(product);
   const onSale =
     product.compare_at_cents != null && product.compare_at_cents > product.price_cents;
-  const image =
-    product.images?.[0]?.url || product.primary_image || "/api/images/placeholder";
+  const images =
+    (product.images?.length ?? 0) > 0
+      ? product.images!.map((img) => img.url)
+      : [product.primary_image || "/api/images/placeholder"];
+  const image = images[Math.min(activeImage, images.length - 1)] || images[0];
 
   function addToCart() {
     if (colors.length > 1 && !selectedColor) {
@@ -59,7 +64,7 @@ export function ProductPage() {
         product_id: product!.id,
         name: product!.name,
         price_cents: product!.price_cents,
-        image,
+        image: images[0],
         slug: product!.slug,
         color: selectedColor || colors[0] || null,
       },
@@ -72,8 +77,48 @@ export function ProductPage() {
   return (
     <div className="shell">
       <div className="pdp">
-        <div className="gallery">
-          <img src={image} alt={product.name} />
+        <div className="gallery gallery-multi">
+          <div className="gallery-main">
+            <img src={image} alt={product.name} />
+            {images.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  className="gallery-nav gallery-prev"
+                  aria-label="Previous photo"
+                  onClick={() =>
+                    setActiveImage((i) => (i - 1 + images.length) % images.length)
+                  }
+                >
+                  ‹
+                </button>
+                <button
+                  type="button"
+                  className="gallery-nav gallery-next"
+                  aria-label="Next photo"
+                  onClick={() => setActiveImage((i) => (i + 1) % images.length)}
+                >
+                  ›
+                </button>
+              </>
+            )}
+          </div>
+          {images.length > 1 && (
+            <div className="gallery-thumbs" role="listbox" aria-label="Product photos">
+              {images.map((src, i) => (
+                <button
+                  key={src + i}
+                  type="button"
+                  role="option"
+                  aria-selected={i === activeImage}
+                  className={`gallery-thumb${i === activeImage ? " is-active" : ""}`}
+                  onClick={() => setActiveImage(i)}
+                >
+                  <img src={src} alt="" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
         <div className="pdp-info">
           <div className="breadcrumbs">

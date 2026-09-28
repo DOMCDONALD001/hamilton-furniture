@@ -24,6 +24,20 @@ type Auction = {
   winner_phone: string | null;
   winner_bid_cents: number | null;
   reserve_met: number;
+  settlement_order_id?: string | null;
+  settlement_token?: string | null;
+  settlement_email_sent_at?: string | null;
+  settlement_order_number?: string | null;
+  settlement_payment_status?: string | null;
+  settlement_order_status?: string | null;
+  settlement_delivery_method?: string | null;
+  settlement_total_cents?: number | null;
+  settlement_address?: string | null;
+  settlement_city?: string | null;
+  settlement_state?: string | null;
+  settlement_zip?: string | null;
+  settlement_delivery_date?: string | null;
+  settlement_delivery_window?: string | null;
 };
 
 type Bid = {
@@ -48,7 +62,11 @@ export function AdminAuctions() {
   const [auctions, setAuctions] = useState<Auction[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [createOpen, setCreateOpen] = useState(false);
-  const [detail, setDetail] = useState<{ auction: Auction; bids: Bid[] } | null>(null);
+  const [detail, setDetail] = useState<{
+    auction: Auction;
+    bids: Bid[];
+    pay_url?: string | null;
+  } | null>(null);
   const [cancelId, setCancelId] = useState<string | null>(null);
   const [form, setForm] = useState({
     product_id: "",
@@ -121,8 +139,20 @@ export function AdminAuctions() {
   }
 
   async function openDetail(id: string) {
-    const data = await api<{ auction: Auction; bids: Bid[] }>(`/api/admin/auctions/${id}`);
+    const data = await api<{ auction: Auction; bids: Bid[]; pay_url?: string | null }>(
+      `/api/admin/auctions/${id}`,
+    );
     setDetail(data);
+  }
+
+  async function resendSettlement(id: string) {
+    try {
+      await api(`/api/admin/auctions/${id}/resend-settlement`, { method: "POST" });
+      toast.push("Payment email resent to winner");
+      await openDetail(id);
+    } catch (err) {
+      toast.push(err instanceof Error ? err.message : "Could not resend email", "err");
+    }
   }
 
   async function endNow(id: string) {
@@ -175,6 +205,7 @@ export function AdminAuctions() {
               <th>Auction</th>
               <th>Status</th>
               <th>Current</th>
+              <th>Winner / pay</th>
               <th>Bids</th>
               <th>Ends</th>
               <th></th>
@@ -200,6 +231,20 @@ export function AdminAuctions() {
                   )}
                 </td>
                 <td>{money(a.current_bid_cents)}</td>
+                <td>
+                  {a.status === "sold" && a.winner_email ? (
+                    <>
+                      <div>{a.winner_name}</div>
+                      <div className="muted" style={{ fontSize: "0.75rem" }}>
+                        {a.settlement_payment_status === "paid"
+                          ? `Paid · ${a.settlement_order_number || "order"}`
+                          : `Unpaid · ${a.settlement_order_number || "awaiting pay"}`}
+                      </div>
+                    </>
+                  ) : (
+                    <span className="muted">—</span>
+                  )}
+                </td>
                 <td>{a.bid_count}</td>
                 <td>{a.ends_at}</td>
                 <td>
@@ -211,7 +256,7 @@ export function AdminAuctions() {
             ))}
             {!auctions.length && (
               <tr>
-                <td colSpan={6} className="muted">
+                <td colSpan={7} className="muted">
                   No auctions yet — create one from inventory or a custom listing.
                 </td>
               </tr>
@@ -390,15 +435,105 @@ export function AdminAuctions() {
             </div>
             {detail.auction.winner_email && (
               <div className="admin-panel" style={{ marginTop: "0.75rem" }}>
-                <h4 style={{ marginTop: 0 }}>Winner</h4>
-                <p style={{ margin: 0 }}>
-                  {detail.auction.winner_name} · {detail.auction.winner_email}
+                <h4 style={{ marginTop: 0 }}>Winner & settlement</h4>
+                <p style={{ margin: "0 0 0.5rem" }}>
+                  <strong>{detail.auction.winner_name}</strong>
+                  <br />
+                  {detail.auction.winner_email}
                   {detail.auction.winner_phone ? ` · ${detail.auction.winner_phone}` : ""}
                 </p>
-                <p className="muted">
-                  Winning bid {money(detail.auction.winner_bid_cents || 0)} — contact them to arrange
-                  payment & delivery.
-                </p>
+                <div className="summary-row">
+                  <span>Winning bid</span>
+                  <strong>{money(detail.auction.winner_bid_cents || 0)}</strong>
+                </div>
+                <div className="summary-row">
+                  <span>Settlement order</span>
+                  <span>
+                    {detail.auction.settlement_order_number ? (
+                      <Link to={`/admin/orders?focus=${detail.auction.settlement_order_id || ""}`}>
+                        {detail.auction.settlement_order_number}
+                      </Link>
+                    ) : (
+                      "Not created"
+                    )}
+                  </span>
+                </div>
+                <div className="summary-row">
+                  <span>Payment</span>
+                  <span className={`status ${detail.auction.settlement_payment_status || "unpaid"}`}>
+                    {(detail.auction.settlement_payment_status || "unpaid").replaceAll("_", " ")}
+                  </span>
+                </div>
+                {detail.auction.settlement_payment_status === "paid" && (
+                  <>
+                    <div className="summary-row">
+                      <span>Fulfillment</span>
+                      <span>
+                        {detail.auction.settlement_delivery_method === "pickup"
+                          ? "Store pickup (free)"
+                          : "Delivery"}
+                        {detail.auction.settlement_total_cents != null
+                          ? ` · ${money(detail.auction.settlement_total_cents)}`
+                          : ""}
+                      </span>
+                    </div>
+                    {detail.auction.settlement_delivery_method === "delivery" && (
+                      <p className="muted" style={{ margin: "0.5rem 0 0" }}>
+                        {[
+                          detail.auction.settlement_address,
+                          detail.auction.settlement_city,
+                          detail.auction.settlement_state,
+                          detail.auction.settlement_zip,
+                        ]
+                          .filter(Boolean)
+                          .join(", ")}
+                        {detail.auction.settlement_delivery_date
+                          ? ` · ${detail.auction.settlement_delivery_date}${
+                              detail.auction.settlement_delivery_window
+                                ? ` · ${detail.auction.settlement_delivery_window}`
+                                : ""
+                            }`
+                          : ""}
+                      </p>
+                    )}
+                  </>
+                )}
+                {detail.auction.settlement_email_sent_at && (
+                  <p className="muted" style={{ fontSize: "0.8rem" }}>
+                    Pay email last sent {detail.auction.settlement_email_sent_at}
+                  </p>
+                )}
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
+                  {detail.auction.settlement_payment_status !== "paid" && (
+                    <button
+                      className="btn btn-primary btn-sm"
+                      type="button"
+                      onClick={() => resendSettlement(detail.auction.id)}
+                    >
+                      Resend pay email
+                    </button>
+                  )}
+                  {detail.pay_url && (
+                    <button
+                      className="btn btn-outline btn-sm"
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard?.writeText(detail.pay_url!);
+                        toast.push("Pay link copied");
+                      }}
+                    >
+                      Copy pay link
+                    </button>
+                  )}
+                  {detail.auction.settlement_order_id && (
+                    <Link
+                      className="btn btn-outline btn-sm"
+                      to={`/admin/orders?focus=${detail.auction.settlement_order_id}`}
+                    >
+                      Open order
+                    </Link>
+                  )}
+                </div>
               </div>
             )}
             <h4>Bids</h4>

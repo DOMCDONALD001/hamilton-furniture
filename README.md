@@ -1,4 +1,4 @@
-# Hamilton Odds N Ends Furniture
+# Hamilton's Odds N Ends Furniture
 
 Modern marketplace-style furniture store on **Cloudflare Workers** with:
 
@@ -27,7 +27,7 @@ Open the URL Vite prints (usually `http://localhost:5173`).
 | Storefront | `/` |
 | Shop | `/shop` |
 | Owner admin | `/admin` |
-| Admin login password (local) | `hamilton-admin` |
+| Admin account | `hamiltonsbikes216@gmail.com` (set your own password on first login) |
 
 ## What you can manage as owner
 
@@ -58,15 +58,37 @@ Open the URL Vite prints (usually `http://localhost:5173`).
    npm run db:migrate:remote
    ```
 
-5. Set admin password:
-   ```bash
-   npx wrangler secret put ADMIN_PASSWORD
-   ```
-
-6. Deploy:
+5. Deploy:
    ```bash
    npm run deploy
    ```
+
+6. Open `/admin` and create the owner password for `hamiltonsbikes216@gmail.com` (first-time setup).
+
+## Square payments
+
+Checkout uses the **Square Web Payments SDK** (card form) + server `CreatePayment`.
+
+1. Create an app at [Square Developer Dashboard](https://developer.squareup.com/apps)
+2. Copy **Sandbox** (or Production) credentials:
+   - Application ID
+   - Access Token
+   - Location ID
+3. Set Worker secrets/vars:
+
+```bash
+npx wrangler secret put SQUARE_ACCESS_TOKEN
+npx wrangler secret put SQUARE_APPLICATION_ID
+npx wrangler secret put SQUARE_LOCATION_ID
+# sandbox or production
+npx wrangler secret put SQUARE_ENVIRONMENT
+```
+
+Or for local `.dev.vars` (see `.dev.vars.example`).
+
+4. Redeploy: `npm run deploy`
+
+When credentials are present, checkout shows the card form and marks orders **paid**. Without them, guests can still place unpaid orders.
 
 ## Stack
 

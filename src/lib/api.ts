@@ -98,23 +98,75 @@ export function productColors(p: { colors?: string[]; color?: string | null }): 
   return [raw];
 }
 
+/** Normalize product search tags from API (array or JSON string). */
+export function productTags(p: { tags?: string[] | string | null }): string[] {
+  if (Array.isArray(p.tags)) return p.tags.map(String).map((t) => t.trim()).filter(Boolean);
+  if (!p.tags || typeof p.tags !== "string") return [];
+  const raw = p.tags.trim();
+  if (!raw) return [];
+  if (raw.startsWith("[")) {
+    try {
+      const parsed = JSON.parse(raw) as unknown;
+      if (Array.isArray(parsed)) return parsed.map(String).map((t) => t.trim()).filter(Boolean);
+    } catch {
+      /* fall through */
+    }
+  }
+  return raw.split(",").map((s) => s.trim()).filter(Boolean);
+}
+
+/** Common shopper search terms — tap to tag so “couch” finds a “sectional”, etc. */
+export const SEARCH_TAG_PRESETS = [
+  "couch",
+  "sofa",
+  "sectional",
+  "loveseat",
+  "recliner",
+  "chair",
+  "dining table",
+  "dining chair",
+  "coffee table",
+  "end table",
+  "bed",
+  "mattress",
+  "dresser",
+  "nightstand",
+  "desk",
+  "office chair",
+  "bookshelf",
+  "tv stand",
+  "entertainment",
+  "lamp",
+  "lighting",
+  "outdoor",
+  "patio",
+  "buffet",
+  "cabinet",
+  "storage",
+  "mirror",
+  "rug",
+  "accent",
+  "vintage",
+] as const;
+
 export async function api<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
+  const { headers: optionHeaders, ...rest } = options;
+  const headers = new Headers(optionHeaders);
+  if (rest.body && !(rest.body instanceof FormData) && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+
   const res = await fetch(path, {
     credentials: "include",
-    headers: {
-      ...(options.body && !(options.body instanceof FormData)
-        ? { "Content-Type": "application/json" }
-        : {}),
-      ...options.headers,
-    },
-    ...options,
+    ...rest,
+    headers,
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    throw new Error((data as { error?: string }).error || res.statusText);
+    throw new Error((data as { error?: string }).error || res.statusText || `Request failed (${res.status})`);
   }
   return data as T;
 }

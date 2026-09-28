@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { api, money } from "../../lib/api";
+import { downloadRevenueStatementPdf } from "../../lib/pdf";
 import { Modal, useToast } from "../../components/AdminUI";
 
 type RevenueData = {
@@ -18,6 +19,11 @@ type RevenueData = {
     refunded_cents: number;
     delivery_orders: number;
     pickup_orders: number;
+    cost_of_goods_cents: number;
+    profit_cents: number;
+    merchandise_after_discount_cents: number;
+    units_sold: number;
+    units_missing_cost: number;
   };
   daily: Array<{
     day: string;
@@ -32,6 +38,8 @@ type RevenueData = {
     product_sku: string;
     qty: number;
     revenue_cents: number;
+    cost_cents: number;
+    profit_cents: number;
   }>;
   orders: Array<{
     id: string;
@@ -62,6 +70,11 @@ export function AdminRevenue() {
   const [data, setData] = useState<RevenueData | null>(null);
   const [statementOpen, setStatementOpen] = useState(false);
   const [dayOpen, setDayOpen] = useState<string | null>(null);
+  const [storeInfo, setStoreInfo] = useState({
+    store_phone: "",
+    store_email: "",
+    store_address: "",
+  });
 
   async function load(f = from, t = to) {
     const d = await api<RevenueData>(
@@ -72,7 +85,31 @@ export function AdminRevenue() {
 
   useEffect(() => {
     load().catch(() => toast.push("Could not load revenue", "err"));
+    api<{ settings: Record<string, string> }>("/api/admin/settings")
+      .then((d) =>
+        setStoreInfo({
+          store_phone: d.settings.store_phone || "",
+          store_email: d.settings.store_email || "",
+          store_address: d.settings.store_address || "",
+        }),
+      )
+      .catch(() => {});
   }, []);
+
+  function downloadPdf() {
+    if (!data) return;
+    downloadRevenueStatementPdf({
+      from,
+      to,
+      storePhone: storeInfo.store_phone,
+      storeEmail: storeInfo.store_email,
+      storeAddress: storeInfo.store_address,
+      summary: data.summary,
+      top_products: data.top_products,
+      orders: data.orders,
+    });
+    toast.push("Statement PDF downloaded");
+  }
 
   const dayOrders = useMemo(() => {
     if (!data || !dayOpen) return [];
@@ -138,6 +175,9 @@ export function AdminRevenue() {
         <button className="btn btn-outline btn-sm" type="button" onClick={() => setStatementOpen(true)}>
           View statement
         </button>
+        <button className="btn btn-primary btn-sm" type="button" onClick={downloadPdf}>
+          Download PDF
+        </button>
         <button className="btn btn-outline btn-sm" type="button" onClick={exportCsv}>
           Export CSV
         </button>
@@ -153,12 +193,14 @@ export function AdminRevenue() {
           <div className="value">{money(s.paid_cents)}</div>
         </div>
         <div className="stat">
-          <div className="label">Outstanding</div>
-          <div className="value">{money(s.unpaid_cents)}</div>
+          <div className="label">Your cost (COGS)</div>
+          <div className="value">{money(s.cost_of_goods_cents || 0)}</div>
         </div>
         <div className="stat">
-          <div className="label">Orders</div>
-          <div className="value">{s.order_count}</div>
+          <div className="label">Profit</div>
+          <div className="value" style={{ color: (s.profit_cents || 0) >= 0 ? undefined : "#e8a0a0" }}>
+            {money(s.profit_cents || 0)}
+          </div>
         </div>
       </div>
 
@@ -176,12 +218,19 @@ export function AdminRevenue() {
           <div className="value" style={{ fontSize: "1.2rem" }}>{money(s.tax_cents)}</div>
         </div>
         <div className="stat">
-          <div className="label">Net order total</div>
-          <div className="value" style={{ fontSize: "1.2rem" }}>{money(s.total_cents)}</div>
+          <div className="label">Orders</div>
+          <div className="value" style={{ fontSize: "1.2rem" }}>{s.order_count}</div>
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: "1rem" }}>
+      {(s.units_missing_cost || 0) > 0 && (
+        <p className="muted" style={{ marginTop: 0 }}>
+          Note: {s.units_missing_cost} sold unit{(s.units_missing_cost || 0) === 1 ? "" : "s"} have no
+          cost set on the product — profit may look higher until you add cost on Inventory.
+        </p>
+      )}
+
+      <div className="split-layout wide-left">
         <div className="admin-panel">
           <h3 style={{ marginTop: 0 }}>Daily breakdown</h3>
           <table className="admin-table">
@@ -223,6 +272,14 @@ export function AdminRevenue() {
           <div className="admin-panel">
             <h3 style={{ marginTop: 0 }}>Fulfillment mix</h3>
             <div className="summary-row">
+              <span>Outstanding (unpaid)</span>
+              <strong>{money(s.unpaid_cents)}</strong>
+            </div>
+            <div className="summary-row">
+              <span>Net order total</span>
+              <strong>{money(s.total_cents)}</strong>
+            </div>
+            <div className="summary-row">
               <span>Delivery orders</span>
               <strong>{s.delivery_orders}</strong>
             </div>
@@ -258,7 +315,10 @@ export function AdminRevenue() {
               <div className="summary-row" key={p.product_sku}>
                 <span>
                   {p.product_name}
-                  <div className="muted">{p.qty} sold</div>
+                  <div className="muted">
+                    {p.qty} sold · cost {money(Number(p.cost_cents || 0))} · profit{" "}
+                    {money(Number(p.profit_cents || 0))}
+                  </div>
                 </span>
                 <strong>{money(p.revenue_cents)}</strong>
               </div>
@@ -278,14 +338,17 @@ export function AdminRevenue() {
             <button className="btn btn-outline" type="button" onClick={() => window.print()}>
               Print
             </button>
-            <button className="btn btn-primary" type="button" onClick={exportCsv}>
+            <button className="btn btn-outline" type="button" onClick={exportCsv}>
               Download CSV
+            </button>
+            <button className="btn btn-primary" type="button" onClick={downloadPdf}>
+              Download PDF
             </button>
           </>
         }
       >
         <div className="statement-sheet">
-          <h3 style={{ marginTop: 0 }}>Hamilton Odds N Ends Furniture</h3>
+          <h3 style={{ marginTop: 0 }}>Hamilton's Odds N Ends Furniture</h3>
           <p className="muted">Sales statement for {from} through {to}</p>
           <div className="summary-row total">
             <span>Gross merchandise</span>
@@ -294,6 +357,14 @@ export function AdminRevenue() {
           <div className="summary-row">
             <span>Less discounts</span>
             <span>−{money(s.discount_cents)}</span>
+          </div>
+          <div className="summary-row">
+            <span>Your cost (items sold)</span>
+            <span>−{money(s.cost_of_goods_cents || 0)}</span>
+          </div>
+          <div className="summary-row total">
+            <span>Profit on merchandise</span>
+            <span>{money(s.profit_cents || 0)}</span>
           </div>
           <div className="summary-row">
             <span>Delivery income</span>

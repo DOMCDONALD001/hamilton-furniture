@@ -3,7 +3,13 @@ export type Env = {
   IMAGES: R2Bucket;
   ASSETS: Fetcher;
   STORE_NAME: string;
-  ADMIN_PASSWORD?: string;
+  PUBLIC_SITE_URL?: string;
+  SQUARE_APPLICATION_ID?: string;
+  SQUARE_LOCATION_ID?: string;
+  SQUARE_ACCESS_TOKEN?: string;
+  SQUARE_ENVIRONMENT?: string;
+  RESEND_API_KEY?: string;
+  EMAIL_FROM?: string;
 };
 
 export type Product = {
@@ -64,6 +70,7 @@ export type Discount = {
   ends_at: string | null;
   active: number;
   members_only?: number;
+  show_on_home?: number;
 };
 
 export type DeliveryZone = {

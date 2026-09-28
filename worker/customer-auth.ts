@@ -53,11 +53,11 @@ export async function verifyCustomerPassword(
 }
 
 export function customerSessionCookie(token: string, maxAgeSec = 60 * 60 * 24 * 30) {
-  return `${COOKIE}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAgeSec}`;
+  return `${COOKIE}=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAgeSec}`;
 }
 
 export function clearCustomerSessionCookie() {
-  return `${COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`;
+  return `${COOKIE}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`;
 }
 
 export function getCustomerSessionToken(cookieHeader: string | undefined) {

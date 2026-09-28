@@ -2,6 +2,7 @@ import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api, money } from "../lib/api";
+import { useCustomer } from "../lib/customer";
 import { Modal } from "../components/AdminUI";
 import { CountdownBlocks } from "../components/Countdown";
 import { type AuctionCard } from "./Auctions";
@@ -15,6 +16,7 @@ type BidRow = {
 
 export function AuctionDetailPage() {
   const { slug } = useParams();
+  const { customer, loading: customerLoading } = useCustomer();
   const [auction, setAuction] = useState<AuctionCard | null>(null);
   const [bids, setBids] = useState<BidRow[]>([]);
   const [secs, setSecs] = useState(0);
@@ -23,11 +25,11 @@ export function AuctionDetailPage() {
   const [buyOpen, setBuyOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
-    bidder_name: "",
-    bidder_email: "",
     bidder_phone: "",
     amount: "",
   });
+
+  const loginNext = `/account?next=${encodeURIComponent(`/auctions/${slug || ""}`)}`;
 
   async function load() {
     if (!slug) return;
@@ -61,15 +63,13 @@ export function AuctionDetailPage() {
 
   async function placeBid(e: FormEvent) {
     e.preventDefault();
-    if (!auction) return;
+    if (!auction || !customer) return;
     setSubmitting(true);
     setError("");
     try {
       await api(`/api/auctions/${auction.id}/bid`, {
         method: "POST",
         body: JSON.stringify({
-          bidder_name: form.bidder_name,
-          bidder_email: form.bidder_email,
           bidder_phone: form.bidder_phone || undefined,
           amount_cents: Math.round(Number(form.amount) * 100),
         }),
@@ -84,20 +84,20 @@ export function AuctionDetailPage() {
   }
 
   async function buyNow() {
-    if (!auction) return;
+    if (!auction || !customer) return;
     setSubmitting(true);
     setError("");
     try {
       await api(`/api/auctions/${auction.id}/buy-now`, {
         method: "POST",
         body: JSON.stringify({
-          bidder_name: form.bidder_name,
-          bidder_email: form.bidder_email,
           bidder_phone: form.bidder_phone || undefined,
         }),
       });
       setBuyOpen(false);
-      setSuccessOpen("You won with Buy It Now! We'll contact you to arrange payment & delivery.");
+      setSuccessOpen(
+        "You won with Buy It Now! Check your email for a secure link to pay and choose free pickup or paid delivery.",
+      );
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Buy Now failed");
@@ -151,74 +151,78 @@ export function AuctionDetailPage() {
 
           <p style={{ color: "var(--ink-soft)" }}>{auction.description}</p>
 
-          {auction.product && (
-            <p className="muted">
-              Linked item:{" "}
-              <Link to={`/product/${auction.product.slug}`}>{auction.product.name}</Link>
-            </p>
-          )}
-
           {live ? (
-            <form className="buy-box" onSubmit={placeBid}>
-              <h3 style={{ margin: 0, fontSize: "1.05rem" }}>Place a bid</h3>
-              <div className="field">
-                <label>Your name</label>
-                <input
-                  required
-                  value={form.bidder_name}
-                  onChange={(e) => setForm({ ...form, bidder_name: e.target.value })}
-                />
+            customerLoading ? (
+              <div className="buy-box">
+                <p className="muted" style={{ margin: 0 }}>
+                  Checking your account…
+                </p>
               </div>
-              <div className="field">
-                <label>Email</label>
-                <input
-                  required
-                  type="email"
-                  value={form.bidder_email}
-                  onChange={(e) => setForm({ ...form, bidder_email: e.target.value })}
-                />
+            ) : !customer ? (
+              <div className="buy-box">
+                <h3 style={{ margin: 0, fontSize: "1.05rem" }}>Sign in to bid</h3>
+                <p className="muted" style={{ margin: 0 }}>
+                  An account is required to place bids or use Buy It Now. This helps keep auctions
+                  fair and lets us contact winners.
+                </p>
+                <Link className="btn btn-primary" to={loginNext}>
+                  Sign in to participate
+                </Link>
+                <Link className="btn btn-outline" to={`${loginNext}&mode=register`}>
+                  Create account
+                </Link>
               </div>
-              <div className="field">
-                <label>Phone (optional)</label>
-                <input
-                  value={form.bidder_phone}
-                  onChange={(e) => setForm({ ...form, bidder_phone: e.target.value })}
-                />
-              </div>
-              <div className="field">
-                <label>Bid amount ($)</label>
-                <input
-                  required
-                  type="number"
-                  step="0.01"
-                  min={(auction.min_next_bid_cents / 100).toFixed(2)}
-                  value={form.amount}
-                  onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                />
-              </div>
-              {error && <p style={{ color: "var(--danger)", margin: 0 }}>{error}</p>}
-              <button className="btn btn-primary" disabled={submitting}>
-                {submitting ? "Placing…" : `Bid ${form.amount ? money(Math.round(Number(form.amount) * 100)) : ""}`}
-              </button>
-              {auction.buy_now_cents != null && (
-                <button
-                  className="btn btn-outline"
-                  type="button"
-                  onClick={() => setBuyOpen(true)}
-                >
-                  Buy It Now — {money(auction.buy_now_cents)}
+            ) : (
+              <form className="buy-box" onSubmit={placeBid}>
+                <h3 style={{ margin: 0, fontSize: "1.05rem" }}>Place a bid</h3>
+                <p className="muted" style={{ margin: 0, fontSize: "0.88rem" }}>
+                  Bidding as <strong>{customer.name}</strong> ({customer.email})
+                </p>
+                <div className="field">
+                  <label>Phone (optional)</label>
+                  <input
+                    value={form.bidder_phone}
+                    placeholder={customer.phone || ""}
+                    onChange={(e) => setForm({ ...form, bidder_phone: e.target.value })}
+                  />
+                </div>
+                <div className="field">
+                  <label>Bid amount ($)</label>
+                  <input
+                    required
+                    type="number"
+                    step="0.01"
+                    min={(auction.min_next_bid_cents / 100).toFixed(2)}
+                    value={form.amount}
+                    onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                  />
+                </div>
+                {error && <p style={{ color: "var(--danger)", margin: 0 }}>{error}</p>}
+                <button className="btn btn-primary" disabled={submitting}>
+                  {submitting
+                    ? "Placing…"
+                    : `Bid ${form.amount ? money(Math.round(Number(form.amount) * 100)) : ""}`}
                 </button>
-              )}
-              <p className="muted" style={{ fontSize: "0.8rem", margin: 0 }}>
-                Bidding in the last 2 minutes extends the auction by 2 minutes.
-              </p>
-            </form>
+                {auction.buy_now_cents != null && (
+                  <button
+                    className="btn btn-outline"
+                    type="button"
+                    onClick={() => setBuyOpen(true)}
+                  >
+                    Buy It Now — {money(auction.buy_now_cents)}
+                  </button>
+                )}
+                <p className="muted" style={{ fontSize: "0.8rem", margin: 0 }}>
+                  Bidding in the last 2 minutes extends the auction by 2 minutes.
+                </p>
+              </form>
+            )
           ) : auction.status === "sold" ? (
             <div className="buy-box">
               <strong>Sold</strong>
               <p className="muted" style={{ margin: 0 }}>
-                Winning bid {money(auction.current_bid_cents)}. Winner will be contacted for payment
-                and delivery.
+                Winning bid {money(auction.current_bid_cents)}. The winner was emailed a secure link
+                to pay online and choose free store pickup or paid delivery.
               </p>
             </div>
           ) : (
@@ -275,7 +279,7 @@ export function AuctionDetailPage() {
             <button
               className="btn btn-primary"
               type="button"
-              disabled={submitting || !form.bidder_name || !form.bidder_email}
+              disabled={submitting || !customer}
               onClick={buyNow}
             >
               Confirm {auction.buy_now_cents ? money(auction.buy_now_cents) : ""}
@@ -285,12 +289,9 @@ export function AuctionDetailPage() {
       >
         <p>
           Instantly win this auction for{" "}
-          <strong>{auction.buy_now_cents ? money(auction.buy_now_cents) : ""}</strong>. Enter your
-          contact details in the bid form first.
+          <strong>{auction.buy_now_cents ? money(auction.buy_now_cents) : ""}</strong> as{" "}
+          <strong>{customer?.name}</strong>.
         </p>
-        {(!form.bidder_name || !form.bidder_email) && (
-          <p style={{ color: "#e8d4b0" }}>Fill in your name and email on the bid form, then confirm.</p>
-        )}
       </Modal>
 
       <Modal open={!!successOpen} title="Success" onClose={() => setSuccessOpen("")}>

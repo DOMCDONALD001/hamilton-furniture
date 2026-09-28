@@ -1,0 +1,12 @@
+# Local Square sandbox credentials (do not commit real secrets)
+# Copy to .dev.vars and fill in from https://developer.squareup.com/apps
+SQUARE_ENVIRONMENT=sandbox
+SQUARE_APPLICATION_ID=
+SQUARE_LOCATION_ID=
+SQUARE_ACCESS_TOKEN=
+
+# Order emails via Resend (https://resend.com)
+RESEND_API_KEY=
+# Start with onboarding@resend.dev (can only email your Resend account address),
+# or use an address on a domain you verified in Resend.
+EMAIL_FROM=onboarding@resend.dev

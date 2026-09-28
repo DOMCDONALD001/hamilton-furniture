@@ -1,10 +1,16 @@
 import type { FormEvent } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api, money } from "../lib/api";
 import { useCart } from "../lib/cart";
 import { useCustomer } from "../lib/customer";
 import { Modal } from "../components/AdminUI";
+import { DeliveryDatePicker } from "../components/DeliveryDatePicker";
+import {
+  SquareCardPay,
+  type PaymentsConfig,
+  type SquareCardInstance,
+} from "../components/SquareCardPay";
 
 type Quote = {
   subtotal_cents: number;
@@ -42,17 +48,37 @@ export function CheckoutPage() {
   const [memberGate, setMemberGate] = useState(false);
   const [areaPopup, setAreaPopup] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [payConfig, setPayConfig] = useState<PaymentsConfig | null>(null);
+  const [cardReady, setCardReady] = useState(false);
+  const cardRef = useRef<SquareCardInstance | null>(null);
   const [form, setForm] = useState({
     customer_name: "",
     customer_email: "",
     customer_phone: "",
     shipping_address1: "",
     shipping_address2: "",
-    shipping_city: "Hamilton",
-    shipping_state: "OH",
+    shipping_city: "Tupelo",
+    shipping_state: "MS",
     shipping_zip: "",
     shipping_notes: "",
+    delivery_date: "",
+    delivery_window: "",
   });
+  const [windows, setWindows] = useState<{ dates: string[]; windows: string[] } | null>(null);
+  const [addresses, setAddresses] = useState<
+    Array<{
+      id: string;
+      label: string | null;
+      name: string | null;
+      phone: string | null;
+      address1: string;
+      address2: string | null;
+      city: string;
+      state: string;
+      zip: string;
+      is_default: number;
+    }>
+  >([]);
 
   useEffect(() => {
     if (!customer) return;
@@ -62,6 +88,9 @@ export function CheckoutPage() {
       customer_email: f.customer_email || customer.email,
       customer_phone: f.customer_phone || customer.phone || "",
     }));
+    api<{ addresses: typeof addresses }>("/api/account/addresses")
+      .then((d) => setAddresses(d.addresses || []))
+      .catch(() => setAddresses([]));
   }, [customer]);
 
   useEffect(() => {
@@ -70,6 +99,19 @@ export function CheckoutPage() {
       if (!d.delivery_enabled && d.pickup_enabled) setMethod("pickup");
       if (d.delivery_enabled && !d.pickup_enabled) setMethod("delivery");
     });
+    api<{ dates: string[]; windows: string[] }>("/api/delivery/windows")
+      .then((d) => {
+        setWindows(d);
+        setForm((f) => ({
+          ...f,
+          delivery_date: f.delivery_date || d.dates[0] || "",
+          delivery_window: f.delivery_window || d.windows[0] || "",
+        }));
+      })
+      .catch(() => setWindows(null));
+    api<PaymentsConfig>("/api/payments/config")
+      .then(setPayConfig)
+      .catch(() => setPayConfig({ enabled: false, applicationId: null, locationId: null, environment: "sandbox" }));
   }, []);
 
   useEffect(() => {
@@ -127,7 +169,22 @@ export function CheckoutPage() {
     setSubmitting(true);
     setError("");
     try {
-      const res = await api<{ order_number: string }>("/api/orders", {
+      if (!payConfig?.enabled) {
+        throw new Error("Online card payment is required. Payments are unavailable right now — try again shortly.");
+      }
+      const card = cardRef.current;
+      if (!card || !cardReady) {
+        throw new Error("Card form is still loading — wait a moment and try again");
+      }
+      const result = await card.tokenize();
+      if (result.status !== "OK" || !result.token) {
+        throw new Error(
+          result.errors?.map((x) => x.message).filter(Boolean).join("; ") ||
+            "Card payment was declined or incomplete",
+        );
+      }
+
+      const res = await api<{ order_number: string; payment_status?: string }>("/api/orders", {
         method: "POST",
         body: JSON.stringify({
           ...form,
@@ -139,6 +196,10 @@ export function CheckoutPage() {
             quantity: i.quantity,
             color: i.color || null,
           })),
+          source_id: result.token,
+          idempotency_key: crypto.randomUUID(),
+          delivery_date: method === "delivery" ? form.delivery_date || undefined : undefined,
+          delivery_window: method === "delivery" ? form.delivery_window || undefined : undefined,
         }),
       });
       clear();
@@ -159,6 +220,7 @@ export function CheckoutPage() {
   }
 
   const blocked = !!areaPopup && method === "delivery";
+  const paymentsOn = !!payConfig?.enabled;
 
   return (
     <div className="shell">
@@ -213,6 +275,58 @@ export function CheckoutPage() {
           </div>
           {method === "delivery" && (
             <>
+              {addresses.length > 0 && (
+                <div className="field">
+                  <label>Saved address</label>
+                  <select
+                    defaultValue=""
+                    onChange={(e) => {
+                      const a = addresses.find((x) => x.id === e.target.value);
+                      if (!a) return;
+                      setForm((f) => ({
+                        ...f,
+                        customer_name: a.name || f.customer_name,
+                        customer_phone: a.phone || f.customer_phone,
+                        shipping_address1: a.address1,
+                        shipping_address2: a.address2 || "",
+                        shipping_city: a.city,
+                        shipping_state: a.state,
+                        shipping_zip: a.zip,
+                      }));
+                    }}
+                  >
+                    <option value="">Choose a saved address…</option>
+                    {addresses.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {(a.label || "Address") + ` — ${a.address1}, ${a.city}`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              <div className="field">
+                <label>Delivery date</label>
+                <DeliveryDatePicker
+                  dates={windows?.dates || []}
+                  value={form.delivery_date}
+                  onChange={(d) => set("delivery_date", d)}
+                  required
+                />
+              </div>
+              <div className="field">
+                <label>Time window</label>
+                <select
+                  required
+                  value={form.delivery_window}
+                  onChange={(e) => set("delivery_window", e.target.value)}
+                >
+                  {(windows?.windows || []).map((w) => (
+                    <option key={w} value={w}>
+                      {w}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <div className="field">
                 <label>Address</label>
                 <input
@@ -247,19 +361,17 @@ export function CheckoutPage() {
                 </div>
               </div>
               <div className="field">
-                <label>ZIP (must be in our delivery area)</label>
+                <label>ZIP</label>
                 <input
                   required
                   value={form.shipping_zip}
                   onChange={(e) => set("shipping_zip", e.target.value)}
-                  placeholder="45011"
+                  placeholder="ZIP"
                 />
-                {quote?.needs_zip && (
-                  <small className="muted">Enter your ZIP to confirm we deliver there.</small>
-                )}
-                {blocked && (
+                <small className="muted">Enter your ZIP to confirm we deliver there.</small>
+                {areaPopup && method === "delivery" && (
                   <small style={{ color: "var(--danger)", display: "block", marginTop: 6 }}>
-                    This ZIP is outside our delivery area.
+                    {areaPopup}
                   </small>
                 )}
               </div>
@@ -267,16 +379,8 @@ export function CheckoutPage() {
           )}
           {method === "pickup" && (
             <div className="field">
-              <label>Contact city / ZIP (for records)</label>
+              <label>Pickup contact ZIP (optional)</label>
               <input
-                required
-                value={form.shipping_address1}
-                onChange={(e) => set("shipping_address1", e.target.value)}
-                placeholder="Hamilton"
-              />
-              <input
-                style={{ marginTop: 8 }}
-                required
                 value={form.shipping_zip}
                 onChange={(e) => set("shipping_zip", e.target.value)}
                 placeholder="ZIP"
@@ -349,44 +453,39 @@ export function CheckoutPage() {
                 : ""}
             </p>
           )}
-          <p className="muted" style={{ fontSize: "0.85rem" }}>
-            Payment is arranged with the store. You’ll get an order number to track status.
-          </p>
+
+          {paymentsOn && payConfig && (
+            <SquareCardPay
+              config={payConfig}
+              cardRef={cardRef}
+              onReadyChange={setCardReady}
+            />
+          )}
+
+          {!paymentsOn && (
+            <p style={{ color: "var(--danger)", fontSize: "0.9rem" }}>
+              Card payment is required and is temporarily unavailable. Orders cannot be placed until
+              payments are back online.
+            </p>
+          )}
+
           {error && !areaPopup && <p style={{ color: "var(--danger)" }}>{error}</p>}
           <button
             className="btn btn-primary"
             style={{ width: "100%" }}
-            disabled={submitting || blocked}
+            disabled={submitting || blocked || !paymentsOn || !cardReady}
           >
-            {submitting ? "Placing order…" : blocked ? "Delivery not available" : "Place order"}
+            {submitting
+              ? "Processing payment…"
+              : `Pay ${money(quote?.total_cents ?? subtotal)} & place order`}
           </button>
         </aside>
       </form>
 
       <Modal
-        open={!!areaPopup}
-        title="Outside our delivery area"
+        open={!!areaPopup && method === "delivery"}
+        title="Outside delivery area"
         onClose={() => setAreaPopup("")}
-        footer={
-          <>
-            {opts?.pickup_enabled !== false && (
-              <button
-                className="btn btn-primary"
-                type="button"
-                onClick={() => {
-                  setMethod("pickup");
-                  setAreaPopup("");
-                  setError("");
-                }}
-              >
-                Switch to store pickup
-              </button>
-            )}
-            <button className="btn btn-outline" type="button" onClick={() => setAreaPopup("")}>
-              Change ZIP
-            </button>
-          </>
-        }
       >
         <p style={{ margin: 0, lineHeight: 1.55 }}>{areaPopup}</p>
       </Modal>

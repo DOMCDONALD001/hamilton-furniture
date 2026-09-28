@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { api, money, type Offer, type Product } from "../lib/api";
 import { ProductCard } from "../components/Layout";
 import { AuctionCardView, type AuctionCard } from "./Auctions";
+import { withStoreDefaults, type StoreContent } from "../lib/store";
 
 type OfferCard = Offer & { members_only?: boolean; locked?: boolean };
 
@@ -10,6 +11,7 @@ export function HomePage() {
   const [featured, setFeatured] = useState<Product[]>([]);
   const [offers, setOffers] = useState<OfferCard[]>([]);
   const [auctions, setAuctions] = useState<AuctionCard[]>([]);
+  const [store, setStore] = useState(withStoreDefaults());
 
   useEffect(() => {
     api<{ products: Product[] }>("/api/products?featured=1&limit=8")
@@ -21,24 +23,39 @@ export function HomePage() {
     api<{ auctions: AuctionCard[] }>("/api/auctions?status=live")
       .then((d) => setAuctions(d.auctions.slice(0, 4)))
       .catch(() => {});
+    api<StoreContent>("/api/store")
+      .then((d) => setStore(withStoreDefaults(d)))
+      .catch(() => {});
   }, []);
 
   return (
     <div className="shell">
-      <section className="hero">
-        <div>
-          <div className="hero-kicker">Hamilton · Odds N Ends · Furniture</div>
-          <h1>Hamilton Odds N Ends Furniture</h1>
-          <p>
-            Browse living room, bedroom, dining, and one-of-a-kind finds — buy now or bid in our
-            live auctions.
-          </p>
+      <section
+        className={`hero ${store.hero_image ? "hero-has-image" : ""}`}
+        style={
+          store.hero_image
+            ? ({
+                ["--hero-image" as string]: `url(${store.hero_image})`,
+                ["--hero-position" as string]:
+                  store.hero_image_position === "left"
+                    ? "left center"
+                    : store.hero_image_position === "right"
+                      ? "right center"
+                      : "center center",
+              } as CSSProperties)
+            : undefined
+        }
+      >
+        <div className="hero-copy">
+          <div className="hero-kicker">{store.hero_kicker}</div>
+          <h1>{store.hero_headline}</h1>
+          <p>{store.hero_subtext}</p>
           <div className="cta-row">
             <Link className="btn btn-primary" to="/shop">
-              Shop inventory
+              {store.hero_cta_primary}
             </Link>
             <Link className="btn btn-ghost" to="/auctions">
-              View auctions
+              {store.hero_cta_secondary}
             </Link>
           </div>
         </div>
@@ -48,8 +65,8 @@ export function HomePage() {
         <>
           <div className="section-head">
             <div>
-              <h2>Live auctions</h2>
-              <p>Bid before the clock runs out</p>
+              <h2>{store.auctions_title}</h2>
+              <p>{store.auctions_subtitle}</p>
             </div>
             <Link className="btn btn-outline btn-sm" to="/auctions">
               All auctions
@@ -67,8 +84,8 @@ export function HomePage() {
         <>
           <div className="section-head">
             <div>
-              <h2>Active offers</h2>
-              <p>Promo codes at checkout — some are members only</p>
+              <h2>{store.offers_title}</h2>
+              <p>{store.offers_subtitle}</p>
             </div>
           </div>
           <div className="offer-strip">
@@ -103,8 +120,8 @@ export function HomePage() {
 
       <div className="section-head">
         <div>
-          <h2>Featured picks</h2>
-          <p>Hand-selected pieces ready for delivery or pickup</p>
+          <h2>{store.featured_title}</h2>
+          <p>{store.featured_subtitle}</p>
         </div>
         <Link className="btn btn-outline btn-sm" to="/shop">
           View all

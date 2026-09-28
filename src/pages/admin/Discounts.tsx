@@ -16,6 +16,7 @@ type Discount = {
   active: number;
   ends_at: string | null;
   members_only?: number;
+  show_on_home?: number;
 };
 
 export function AdminDiscounts() {
@@ -31,6 +32,7 @@ export function AdminDiscounts() {
     max_uses: "",
     ends_at: "",
     members_only: false,
+    show_on_home: true,
   });
 
   async function load() {
@@ -62,6 +64,7 @@ export function AdminDiscounts() {
         ends_at: form.ends_at || null,
         active: 1,
         members_only: form.members_only,
+        show_on_home: form.show_on_home,
       }),
     });
     setForm({
@@ -74,6 +77,7 @@ export function AdminDiscounts() {
       max_uses: "",
       ends_at: "",
       members_only: false,
+      show_on_home: true,
     });
     toast.push(form.members_only ? "Member-only offer created" : "Offer created");
     await load();
@@ -96,6 +100,16 @@ export function AdminDiscounts() {
     await load();
   }
 
+  async function toggleHome(d: Discount) {
+    const onHome = d.show_on_home == null ? 1 : d.show_on_home;
+    await api(`/api/admin/discounts/${d.id}`, {
+      method: "PUT",
+      body: JSON.stringify({ ...d, show_on_home: onHome ? 0 : 1 }),
+    });
+    toast.push(onHome ? "Hidden from home page" : "Shown on home page");
+    await load();
+  }
+
   async function remove(id: string) {
     if (!confirm("Delete this offer?")) return;
     await api(`/api/admin/discounts/${id}`, { method: "DELETE" });
@@ -107,9 +121,10 @@ export function AdminDiscounts() {
       <h1>Offers & discounts</h1>
       <p className="muted" style={{ marginTop: 0 }}>
         Check <strong>Account holders only</strong> so guests cannot use the code — customers must
-        create a free account / sign in.
+        create a free account / sign in. Use <strong>Hide from home</strong> to keep a code working
+        at checkout without advertising it on the homepage.
       </p>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+      <div className="split-layout equal">
         <div className="admin-panel">
           <table className="admin-table">
             <thead>
@@ -118,46 +133,62 @@ export function AdminDiscounts() {
                 <th>Code</th>
                 <th>Value</th>
                 <th>Who</th>
+                <th>Home</th>
                 <th></th>
               </tr>
             </thead>
             <tbody>
-              {discounts.map((d) => (
-                <tr key={d.id}>
-                  <td>
-                    <strong>{d.name}</strong>
-                    <div className="muted">{d.active ? "Active" : "Off"}</div>
-                  </td>
-                  <td>{d.code || "—"}</td>
-                  <td>
-                    {d.type === "percent"
-                      ? `${d.value}%`
-                      : d.type === "fixed"
-                        ? money(d.value)
-                        : "Free ship"}
-                  </td>
-                  <td>
-                    <span className={`status ${d.members_only ? "live" : "scheduled"}`}>
-                      {d.members_only ? "Members" : "Everyone"}
-                    </span>
-                  </td>
-                  <td>
-                    <button className="btn btn-outline btn-sm" type="button" onClick={() => toggle(d)}>
-                      {d.active ? "Disable" : "Enable"}
-                    </button>{" "}
-                    <button
-                      className="btn btn-outline btn-sm"
-                      type="button"
-                      onClick={() => toggleMembers(d)}
-                    >
-                      {d.members_only ? "Allow guests" : "Members only"}
-                    </button>{" "}
-                    <button className="btn btn-danger btn-sm" type="button" onClick={() => remove(d.id)}>
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {discounts.map((d) => {
+                const onHome = d.show_on_home == null ? 1 : d.show_on_home;
+                return (
+                  <tr key={d.id}>
+                    <td>
+                      <strong>{d.name}</strong>
+                      <div className="muted">{d.active ? "Active" : "Off"}</div>
+                    </td>
+                    <td>{d.code || "—"}</td>
+                    <td>
+                      {d.type === "percent"
+                        ? `${d.value}%`
+                        : d.type === "fixed"
+                          ? money(d.value)
+                          : "Free ship"}
+                    </td>
+                    <td>
+                      <span className={`status ${d.members_only ? "live" : "scheduled"}`}>
+                        {d.members_only ? "Members" : "Everyone"}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`status ${onHome ? "scheduled" : "draft"}`}>
+                        {onHome ? "Shown" : "Hidden"}
+                      </span>
+                    </td>
+                    <td>
+                      <button className="btn btn-outline btn-sm" type="button" onClick={() => toggle(d)}>
+                        {d.active ? "Disable" : "Enable"}
+                      </button>{" "}
+                      <button
+                        className="btn btn-outline btn-sm"
+                        type="button"
+                        onClick={() => toggleHome(d)}
+                      >
+                        {onHome ? "Hide from home" : "Show on home"}
+                      </button>{" "}
+                      <button
+                        className="btn btn-outline btn-sm"
+                        type="button"
+                        onClick={() => toggleMembers(d)}
+                      >
+                        {d.members_only ? "Allow guests" : "Members only"}
+                      </button>{" "}
+                      <button className="btn btn-danger btn-sm" type="button" onClick={() => remove(d.id)}>
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -228,13 +259,21 @@ export function AdminDiscounts() {
               onChange={(e) => setForm({ ...form, ends_at: e.target.value })}
             />
           </div>
-          <label style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 14 }}>
+          <label style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 10 }}>
             <input
               type="checkbox"
               checked={form.members_only}
               onChange={(e) => setForm({ ...form, members_only: e.target.checked })}
             />
             Account holders only (not guests)
+          </label>
+          <label style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 14 }}>
+            <input
+              type="checkbox"
+              checked={form.show_on_home}
+              onChange={(e) => setForm({ ...form, show_on_home: e.target.checked })}
+            />
+            Show on home page
           </label>
           <button className="btn btn-primary">Create offer</button>
         </form>
